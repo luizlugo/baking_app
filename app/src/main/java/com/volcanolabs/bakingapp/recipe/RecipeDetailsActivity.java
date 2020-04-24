@@ -1,5 +1,6 @@
 package com.volcanolabs.bakingapp.recipe;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -12,9 +13,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.volcanolabs.bakingapp.databinding.ActivityRecipesDetailBinding;
 import com.volcanolabs.bakingapp.entities.Recipe;
+import com.volcanolabs.bakingapp.entities.Step;
+import com.volcanolabs.bakingapp.interfaces.RecipeStepsListener;
 import com.volcanolabs.bakingapp.viewmodel.RecipeDetailViewModel;
 
-public class RecipeDetailsActivity extends AppCompatActivity {
+public class RecipeDetailsActivity extends AppCompatActivity implements RecipeStepsListener {
     public static final String RECIPE_DETAIL_KEY = "recipeDetailKey";
     private ActivityRecipesDetailBinding binding;
     private Toolbar toolbar;
@@ -34,10 +37,10 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             recipe = params.getParcelable(RECIPE_DETAIL_KEY);
             viewModel.setCurrentRecipe(recipe);
         }
-        setupUI(binding);
+        setupUI();
     }
 
-    private void setupUI(ActivityRecipesDetailBinding binding) {
+    private void setupUI() {
         toolbar = binding.appBar;
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
@@ -45,5 +48,13 @@ public class RecipeDetailsActivity extends AppCompatActivity {
             ab.setTitle(recipe.getName());
             ab.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    @Override
+    public void onStepClicked(Step step) {
+        // Open step details activity
+        Intent stepDetails = new Intent(this, RecipeStepDetailsActivity.class);
+        stepDetails.putExtra(RecipeStepDetailsActivity.RECIPE_STEP_DETAILS_KEY, step);
+        startActivity(stepDetails);
     }
 }

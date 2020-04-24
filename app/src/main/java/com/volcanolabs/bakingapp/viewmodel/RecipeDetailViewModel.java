@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.volcanolabs.bakingapp.entities.Recipe;
+import com.volcanolabs.bakingapp.entities.Step;
 
 public class RecipeDetailViewModel extends ViewModel {
     private MutableLiveData<Recipe> recipeObservable = new MutableLiveData<>();

@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/BakingAppTheme">
-        <activity android:name=".RecipesActivity">
+        <activity
+            android:name=".RecipesActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,7 +23,12 @@
 
         <activity
             android:name=".recipe.RecipeDetailsActivity"
+            android:launchMode="singleTop"
             android:parentActivityName=".RecipesActivity" />
+
+        <activity
+            android:name=".recipe.RecipeStepDetailsActivity"
+            android:parentActivityName=".recipe.RecipeDetailsActivity" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <!-- Base application theme. -->
     <style name="BakingAppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -6,6 +6,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorOnPrimary">@color/whiteColor</item>
+        <item name="android:textColorSecondary">@color/whiteColor</item>
     </style>
 
     <style name="BakingAppTheme.Toolbar" parent="Widget.AppCompat.Toolbar">
