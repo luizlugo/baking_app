@@ -1,10 +1,13 @@
 package com.volcanolabs.bakingapp.entities;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 
-public class Recipe {
+public class Recipe implements Parcelable {
     @SerializedName("id")
     private int id;
     @SerializedName("name")
@@ -17,6 +20,27 @@ public class Recipe {
     private ArrayList<Ingredient> ingredients;
     @SerializedName("steps")
     private ArrayList<Step> steps;
+
+    protected Recipe(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        servings = in.readInt();
+        image = in.readString();
+        ingredients = in.createTypedArrayList(Ingredient.CREATOR);
+        steps = in.createTypedArrayList(Step.CREATOR);
+    }
+
+    public static final Creator<Recipe> CREATOR = new Creator<Recipe>() {
+        @Override
+        public Recipe createFromParcel(Parcel in) {
+            return new Recipe(in);
+        }
+
+        @Override
+        public Recipe[] newArray(int size) {
+            return new Recipe[size];
+        }
+    };
 
     public int getId() {
         return id;
@@ -64,5 +88,20 @@ public class Recipe {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int describeContents() {
+        return hashCode();
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(name);
+        parcel.writeInt(servings);
+        parcel.writeString(image);
+        parcel.writeList(ingredients);
+        parcel.writeList(steps);
     }
 }

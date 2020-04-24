@@ -6,7 +6,9 @@ import com.volcanolabs.bakingapp.entities.Recipe;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class RecipeService {
     private RestApi mRestApi;
@@ -25,7 +27,9 @@ public class RecipeService {
     }
 
     public Observable<List<Recipe>> getRecipes() {
-        return mRestApi.getRecipes();
+        return mRestApi.getRecipes()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
 }
