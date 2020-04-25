@@ -19,20 +19,18 @@ import com.volcanolabs.bakingapp.databinding.FragmentRecipeDetailsMasterListBind
 
 public class RecipeDetailsMasterListFragment extends Fragment {
     FragmentRecipeDetailsMasterListBinding binding;
-    private ViewPager2 viewPager;
-    private TabLayout tabLayout;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentRecipeDetailsMasterListBinding.inflate(inflater, container, false);
-        viewPager = binding.pager;
-        tabLayout = binding.tabs;
+        ViewPager2 viewPager = binding.pager;
+        TabLayout tabLayout = binding.tabs;
         viewPager.setAdapter(new RecipeDetailsTabAdapter(getActivity()));
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             Context context = getContext();
             if (context != null) {
-                String tabName = (position == 0) ? context.getResources().getString(R.string.ingredients) : context.getResources().getString(R.string.steps);
+                String tabName = (position == 0) ? context.getResources().getString(R.string.steps) : context.getResources().getString(R.string.ingredients);
                 tab.setText(tabName);
             }
         }).attach();

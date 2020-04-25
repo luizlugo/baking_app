@@ -16,7 +16,7 @@ public class RecipeDetailsTabAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return (position == 0) ? new RecipeIngredientsFragment() : new RecipeStepsFragment();
+        return (position == 0) ?  new RecipeStepsFragment() : new RecipeIngredientsFragment();
     }
 
     @Override

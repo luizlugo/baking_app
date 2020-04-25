@@ -8,9 +8,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.volcanolabs.bakingapp.R;
 import com.volcanolabs.bakingapp.databinding.ActivityRecipesDetailBinding;
 import com.volcanolabs.bakingapp.entities.Recipe;
 import com.volcanolabs.bakingapp.entities.Step;
@@ -31,11 +33,16 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
         super.onCreate(savedInstanceState);
         binding = ActivityRecipesDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        isTablet = (binding.vgTabletContainer != null);
         viewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())).get(RecipeDetailViewModel.class);
         Bundle params = getIntent().getExtras();
         if (params != null && params.containsKey(RECIPE_DETAIL_KEY)) {
             recipe = params.getParcelable(RECIPE_DETAIL_KEY);
             viewModel.setCurrentRecipe(recipe);
+
+            if (savedInstanceState == null && isTablet) {
+                setTabletLayout();
+            }
         }
         setupUI();
     }
@@ -50,11 +57,28 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
         }
     }
 
+    private void setTabletLayout() {
+        initStepDetailFragment();
+        if (recipe != null && recipe.getSteps() != null && recipe.getSteps().size() > 0) {
+            viewModel.setCurrentStep(recipe.getSteps().get(0));
+        }
+    }
+
+    private void initStepDetailFragment() {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.vg_step_details_container, RecipeStepDetailsFragment.newInstance(true)).commit();
+    }
+
     @Override
     public void onStepClicked(Step step) {
-        // Open step details activity
-        Intent stepDetails = new Intent(this, RecipeStepDetailsActivity.class);
-        stepDetails.putExtra(RecipeStepDetailsActivity.RECIPE_STEP_DETAILS_KEY, step);
-        startActivity(stepDetails);
+        if (!isTablet) {
+            // Open step details activity
+            Intent stepDetails = new Intent(this, RecipeStepDetailsActivity.class);
+            stepDetails.putExtra(RecipeStepDetailsActivity.RECIPE_STEP_DETAILS_KEY, step);
+            startActivity(stepDetails);
+        } else {
+            // Refresh step detail fragment with new fragment data
+            viewModel.setCurrentStep(step);
+        }
     }
 }

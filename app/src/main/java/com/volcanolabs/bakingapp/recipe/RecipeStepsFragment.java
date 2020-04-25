@@ -1,6 +1,5 @@
 package com.volcanolabs.bakingapp.recipe;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,8 +18,6 @@ import com.volcanolabs.bakingapp.entities.Recipe;
 import com.volcanolabs.bakingapp.entities.Step;
 import com.volcanolabs.bakingapp.interfaces.RecipeStepsListener;
 import com.volcanolabs.bakingapp.viewmodel.RecipeDetailViewModel;
-
-import timber.log.Timber;
 
 public class RecipeStepsFragment extends Fragment implements RecipeStepsListener {
     FragmentRecipeStepsBinding binding;
