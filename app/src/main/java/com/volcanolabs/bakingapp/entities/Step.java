@@ -16,6 +16,7 @@ public class Step implements Parcelable {
     private String videoUrl;
     @SerializedName("thumbnailURL")
     private String thumbnailUrl;
+    private boolean isSelected;
 
     public Step(int id, String shortDescription, String description, String videoUrl, String thumbnailUrl) {
         this.id = id;
@@ -83,6 +84,14 @@ public class Step implements Parcelable {
 
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     @Override

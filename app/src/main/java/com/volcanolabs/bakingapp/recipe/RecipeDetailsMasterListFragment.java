@@ -19,6 +19,16 @@ import com.volcanolabs.bakingapp.databinding.FragmentRecipeDetailsMasterListBind
 
 public class RecipeDetailsMasterListFragment extends Fragment {
     FragmentRecipeDetailsMasterListBinding binding;
+    private static final String IS_TABLET_KEY = "isTabletKey";
+    private boolean isTablet;
+
+    public static RecipeDetailsMasterListFragment newInstance(boolean isTablet) {
+        Bundle params = new Bundle();
+        params.putBoolean(IS_TABLET_KEY, isTablet);
+        RecipeDetailsMasterListFragment fragment = new RecipeDetailsMasterListFragment();
+        fragment.setArguments(params);
+        return fragment;
+    }
 
     @Nullable
     @Override
@@ -26,7 +36,12 @@ public class RecipeDetailsMasterListFragment extends Fragment {
         binding = FragmentRecipeDetailsMasterListBinding.inflate(inflater, container, false);
         ViewPager2 viewPager = binding.pager;
         TabLayout tabLayout = binding.tabs;
-        viewPager.setAdapter(new RecipeDetailsTabAdapter(getActivity()));
+
+        if (getArguments() != null) {
+            isTablet = getArguments().getBoolean(IS_TABLET_KEY);
+        }
+
+        viewPager.setAdapter(new RecipeDetailsTabAdapter(requireActivity(), isTablet));
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             Context context = getContext();
             if (context != null) {

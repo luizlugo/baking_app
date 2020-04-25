@@ -1,17 +1,16 @@
 package com.volcanolabs.bakingapp.recipe;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.volcanolabs.bakingapp.R;
 import com.volcanolabs.bakingapp.databinding.ActivityRecipesDetailBinding;
 import com.volcanolabs.bakingapp.entities.Recipe;
@@ -25,7 +24,6 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
     private Toolbar toolbar;
     private Recipe recipe;
     private boolean isTablet;
-    private Fragment currentFragment;
     private RecipeDetailViewModel viewModel;
 
     @Override
@@ -44,6 +42,12 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
                 setTabletLayout();
             }
         }
+
+        if (savedInstanceState == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.vg_master_list, RecipeDetailsMasterListFragment.newInstance(isTablet)).commit();
+        }
+
         setupUI();
     }
 

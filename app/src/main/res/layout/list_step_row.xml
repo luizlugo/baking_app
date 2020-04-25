@@ -5,7 +5,7 @@
     android:layout_height="100dp">
 
     <FrameLayout
-        android:id="@+id/iv_thumb"
+        android:id="@+id/vg_step_number"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginStart="@dimen/double_padding"
@@ -31,10 +31,10 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/base_padding"
         android:layout_marginStart="@dimen/base_padding"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_thumb"
-        app:layout_constraintLeft_toRightOf="@+id/iv_thumb"
+        app:layout_constraintBottom_toBottomOf="@+id/vg_step_number"
+        app:layout_constraintLeft_toRightOf="@+id/vg_step_number"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/iv_thumb" />
+        app:layout_constraintTop_toTopOf="@+id/vg_step_number" />
 
     <FrameLayout
         android:layout_width="match_parent"

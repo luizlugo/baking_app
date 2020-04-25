@@ -1,5 +1,7 @@
 package com.volcanolabs.bakingapp.recipe;
 
+import android.app.Dialog;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -20,6 +21,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.volcanolabs.bakingapp.R;
 import com.volcanolabs.bakingapp.databinding.FragmentRecipeStepDetailsBinding;
 import com.volcanolabs.bakingapp.entities.Step;
 import com.volcanolabs.bakingapp.viewmodel.RecipeDetailViewModel;
@@ -32,6 +34,10 @@ public class RecipeStepDetailsFragment extends Fragment {
     private TextView tvIngredients;
     private Step step;
     private RecipeDetailViewModel viewModel;
+    private Dialog mFullScreenDialog;
+    private boolean mExoPlayerFullscreen;
+    private ViewGroup vgMediaFrame;
+    private boolean isTablet;
 
     public static RecipeStepDetailsFragment newInstance(Step step) {
         Bundle args = new Bundle();
@@ -54,7 +60,9 @@ public class RecipeStepDetailsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         FragmentRecipeStepDetailsBinding binding = FragmentRecipeStepDetailsBinding.inflate(inflater, container, false);
         videoPlayer = binding.vgVideoplayer;
+        vgMediaFrame = binding.vgMediaFrame;
         tvIngredients = binding.tvIngredients;
+        initFullscreenDialog();
         return binding.getRoot();
     }
 
@@ -65,11 +73,11 @@ public class RecipeStepDetailsFragment extends Fragment {
         initializePlayer();
 
         if (getArguments() != null) {
-            boolean isTablet = getArguments().getBoolean(IS_TABLET_LAYOUT);
+            isTablet = getArguments().getBoolean(IS_TABLET_LAYOUT);
 
             if (isTablet) {
-                viewModel = new ViewModelProvider(getActivity(), null).get(RecipeDetailViewModel.class);
-                viewModel.getStepObservable().observe(getActivity(), this::onStepRetrieved);
+                viewModel = new ViewModelProvider(requireActivity(), null).get(RecipeDetailViewModel.class);
+                viewModel.getStepObservable().observe(this, this::onStepRetrieved);
             } else {
                 step = getArguments().getParcelable(STEP_KEY);
                 setupUI();
@@ -99,17 +107,39 @@ public class RecipeStepDetailsFragment extends Fragment {
     }
 
     private void initializePlayer() {
-        if (getActivity() != null) {
-            player = new SimpleExoPlayer.Builder(getActivity()).build();
-            videoPlayer.setPlayer(player);
-        }
+        player = new SimpleExoPlayer.Builder(requireActivity()).build();
+        videoPlayer.setPlayer(player);
     }
 
     private void setVideoToPlayer(String videoUrl) {
-        DataSource.Factory dataFactory = new DefaultDataSourceFactory(getActivity(), Util.getUserAgent(getActivity(), "bakingApp"));
+        DataSource.Factory dataFactory = new DefaultDataSourceFactory(requireActivity(), Util.getUserAgent(requireActivity(), "bakingApp"));
         Uri videoUri = Uri.parse(videoUrl);
         MediaSource videoSource = new ProgressiveMediaSource.Factory(dataFactory).createMediaSource(videoUri);
         player.prepare(videoSource, false, false);
+    }
+
+    private void initFullscreenDialog() {
+        mFullScreenDialog = new Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+            public void onBackPressed() {
+                if (mExoPlayerFullscreen)
+                    closeFullscreenDialog();
+                super.onBackPressed();
+            }
+        };
+    }
+
+    private void openFullscreenDialog() {
+        ((ViewGroup) videoPlayer.getParent()).removeView(videoPlayer);
+        mFullScreenDialog.addContentView(videoPlayer, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mExoPlayerFullscreen = true;
+        mFullScreenDialog.show();
+    }
+
+    private void closeFullscreenDialog() {
+        ((ViewGroup) videoPlayer.getParent()).removeView(videoPlayer);
+        vgMediaFrame.addView(videoPlayer);
+        mExoPlayerFullscreen = false;
+        mFullScreenDialog.dismiss();
     }
 
     @Override
@@ -118,5 +148,18 @@ public class RecipeStepDetailsFragment extends Fragment {
         player.stop();
         player.release();
         player = null;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (!isTablet) {
+            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                openFullscreenDialog();
+            } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT && mExoPlayerFullscreen){
+                closeFullscreenDialog();
+            }
+        }
     }
 }

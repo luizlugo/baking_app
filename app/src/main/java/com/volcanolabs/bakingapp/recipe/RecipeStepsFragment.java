@@ -19,20 +19,40 @@ import com.volcanolabs.bakingapp.entities.Step;
 import com.volcanolabs.bakingapp.interfaces.RecipeStepsListener;
 import com.volcanolabs.bakingapp.viewmodel.RecipeDetailViewModel;
 
+import java.util.List;
+
 public class RecipeStepsFragment extends Fragment implements RecipeStepsListener {
+    private static final String IS_TABLET_KEY = "isTabletKey";
+
     FragmentRecipeStepsBinding binding;
     private RecyclerView rvSteps;
     private RecipeStepsAdapter adapter;
     private RecipeDetailViewModel viewModel;
     private RecipeStepsListener listener;
+    private Step currentSelectedStep;
+    private boolean isTablet;
+    private List<Step> steps;
+
+    public static RecipeStepsFragment newInstance(boolean isTablet) {
+        Bundle params = new Bundle();
+        params.putBoolean(IS_TABLET_KEY, isTablet);
+        RecipeStepsFragment fragment = new RecipeStepsFragment();
+        fragment.setArguments(params);
+        return fragment;
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentRecipeStepsBinding.inflate(inflater, container, false);
         rvSteps = binding.rvSteps;
-        adapter = new RecipeStepsAdapter(this::onStepClicked);
+        adapter = new RecipeStepsAdapter(requireContext(), this);
         rvSteps.setAdapter(adapter);
+
+        if (getArguments() != null) {
+            isTablet = getArguments().getBoolean(IS_TABLET_KEY);
+        }
+
         return binding.getRoot();
     }
 
@@ -52,11 +72,27 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsListener
     }
 
     private void onRecipeDataRetrieved(Recipe recipe) {
-        adapter.setData(recipe.getSteps());
+        steps = recipe.getSteps();
+        if (isTablet && steps.size() > 0) {
+            // Mark first step as selected
+            steps.get(0).setSelected(true);
+        }
+        adapter.setData(steps);
     }
 
     @Override
     public void onStepClicked(Step step) {
+        if (isTablet) {
+            for (Step currentStep : steps) {
+                if (step.getId() == currentStep.getId()) {
+                    currentStep.setSelected(true);
+                } else {
+                    currentStep.setSelected(false);
+                }
+            }
+            adapter.setData(steps);
+        }
+
         if (listener != null) {
             listener.onStepClicked(step);
         }

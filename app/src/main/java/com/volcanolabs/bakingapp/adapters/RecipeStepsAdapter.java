@@ -1,9 +1,11 @@
 package com.volcanolabs.bakingapp.adapters;
 
+import android.content.Context;
 import android.media.ThumbnailUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.volcanolabs.bakingapp.R;
+import com.volcanolabs.bakingapp.Utilities;
 import com.volcanolabs.bakingapp.entities.Step;
 import com.volcanolabs.bakingapp.interfaces.RecipeStepsListener;
 
@@ -20,8 +23,10 @@ import java.util.List;
 public class RecipeStepsAdapter extends RecyclerView.Adapter<RecipeStepsAdapter.ViewHolder> {
     private List<Step> steps = new ArrayList<>();
     private RecipeStepsListener listener;
+    private Context context;
 
-    public RecipeStepsAdapter(RecipeStepsListener listener) {
+    public RecipeStepsAdapter(Context context, RecipeStepsListener listener) {
+        this.context = context;
         this.listener = listener;
     }
 
@@ -50,17 +55,27 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<RecipeStepsAdapter.
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvStep;
         private TextView tvName;
+        private FrameLayout vgStepNumber;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvStep = itemView.findViewById(R.id.tv_step_number);
             tvName = itemView.findViewById(R.id.tv_name);
-            itemView.setOnClickListener(this::onClick);
+            vgStepNumber = itemView.findViewById(R.id.vg_step_number);
+            itemView.setOnClickListener(this);
         }
 
         public void bind(Step step) {
             tvName.setText(step.getShortDescription());
             tvStep.setText(String.valueOf(getAdapterPosition() + 1));
+            int primaryColor = Utilities.getColorCompat(context, R.color.colorPrimary);
+            int dividerColor = Utilities.getColorCompat(context, R.color.dividerColor);
+
+            if (step.isSelected()) {
+                vgStepNumber.setBackgroundColor(primaryColor);
+            } else {
+                vgStepNumber.setBackgroundColor(dividerColor);
+            }
         }
 
         @Override
