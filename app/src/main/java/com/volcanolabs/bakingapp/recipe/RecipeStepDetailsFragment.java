@@ -1,5 +1,6 @@
 package com.volcanolabs.bakingapp.recipe;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -28,6 +29,9 @@ import com.volcanolabs.bakingapp.viewmodel.RecipeDetailViewModel;
 public class RecipeStepDetailsFragment extends Fragment {
     private static final String STEP_KEY = "stepKey";
     private static final String IS_TABLET_LAYOUT = "isTabletLayout";
+    private static final String PLAY_WHEN_READY_KEY = "playWhenReadyKey";
+    private static final String PLAYBACK_POSITION_KEY = "playbackPositionKey";
+    private static final String CURRENT_WINDOW_KEY = "currentWindowKey";
     private PlayerView videoPlayer;
     private SimpleExoPlayer player;
     private TextView tvIngredients;
@@ -38,6 +42,10 @@ public class RecipeStepDetailsFragment extends Fragment {
     private ViewGroup vgMediaFrame;
     private boolean isTablet;
     private TextView tvNoVideo;
+    private boolean playWhenReady = true;
+    private int currentWindow = 0;
+    private long playbackPosition = 0;
+    private String videoUrl;
 
     public static RecipeStepDetailsFragment newInstance(Step step) {
         Bundle args = new Bundle();
@@ -53,6 +61,17 @@ public class RecipeStepDetailsFragment extends Fragment {
         RecipeStepDetailsFragment fragment = new RecipeStepDetailsFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            playWhenReady = savedInstanceState.getBoolean(PLAY_WHEN_READY_KEY);
+            playbackPosition = savedInstanceState.getLong(PLAYBACK_POSITION_KEY);
+            currentWindow = savedInstanceState.getInt(CURRENT_WINDOW_KEY);
+        }
     }
 
     @Nullable
@@ -71,8 +90,6 @@ public class RecipeStepDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initializePlayer();
-
         if (getArguments() != null) {
             isTablet = getArguments().getBoolean(IS_TABLET_LAYOUT);
 
@@ -88,30 +105,39 @@ public class RecipeStepDetailsFragment extends Fragment {
 
     private void onStepRetrieved(Step step) {
         this.step = step;
-        player.stop(true);
+
         setupUI();
+
+        if (player != null) {
+            player.stop(true);
+            setVideoToPlayer(videoUrl);
+        }
     }
 
     private void setupUI() {
         if (step != null) {
+            tvIngredients.setText(step.getDescription());
+
             if (step.getVideoUrl() != null && !step.getVideoUrl().isEmpty()
                     || step.getThumbnailUrl() != null && !step.getThumbnailUrl().isEmpty()) {
-                String url = (!step.getVideoUrl().isEmpty()) ? step.getVideoUrl() : step.getThumbnailUrl();
-                setVideoToPlayer(url);
+                videoUrl = (!step.getVideoUrl().isEmpty()) ? step.getVideoUrl() : step.getThumbnailUrl();
                 videoPlayer.setVisibility(View.VISIBLE);
                 tvNoVideo.setVisibility(View.GONE);
             } else {
                 videoPlayer.setVisibility(View.GONE);
                 tvNoVideo.setVisibility(View.VISIBLE);
             }
-
-            tvIngredients.setText(step.getDescription());
         }
     }
 
     private void initializePlayer() {
-        player = new SimpleExoPlayer.Builder(requireActivity()).build();
-        videoPlayer.setPlayer(player);
+        if (videoUrl != null && !videoUrl.isEmpty()) {
+            player = new SimpleExoPlayer.Builder(requireActivity()).build();
+            player.setPlayWhenReady(playWhenReady);
+            player.seekTo(currentWindow, playbackPosition);
+            videoPlayer.setPlayer(player);
+            setVideoToPlayer(videoUrl);
+        }
     }
 
     private void setVideoToPlayer(String videoUrl) {
@@ -146,11 +172,38 @@ public class RecipeStepDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        player.stop();
-        player.release();
-        player = null;
+    public void onStart() {
+        super.onStart();
+
+        if (Util.SDK_INT >= 24) {
+            initializePlayer();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (Util.SDK_INT < 24 || player == null) {
+            initializePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT >= 24) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (Util.SDK_INT < 24) {
+            releasePlayer();
+        }
     }
 
     @Override
@@ -163,6 +216,25 @@ public class RecipeStepDetailsFragment extends Fragment {
             } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT && mExoPlayerFullscreen) {
                 closeFullscreenDialog();
             }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(PLAY_WHEN_READY_KEY, playWhenReady);
+        outState.putLong(PLAYBACK_POSITION_KEY, playbackPosition);
+        outState.putInt(CURRENT_WINDOW_KEY, currentWindow);
+    }
+
+    private void releasePlayer() {
+        if (player != null) {
+            playWhenReady = player.getPlayWhenReady();
+            playbackPosition = player.getCurrentPosition();
+            currentWindow = player.getCurrentWindowIndex();
+            player.release();
+            player = null;
+            videoUrl = null;
         }
     }
 }
