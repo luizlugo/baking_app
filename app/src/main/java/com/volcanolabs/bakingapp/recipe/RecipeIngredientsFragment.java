@@ -26,7 +26,7 @@ public class RecipeIngredientsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentRecipeIngredientsBinding.inflate(inflater, container,false);
+        binding = FragmentRecipeIngredientsBinding.inflate(inflater, container, false);
         rvIngredients = binding.rvIngredients;
         adapter = new RecipeIngredientsAdapter();
         rvIngredients.setAdapter(adapter);

@@ -5,12 +5,15 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.IdlingResource;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.volcanolabs.bakingapp.adapters.RecipesAdapter;
 import com.volcanolabs.bakingapp.adapters.RecipesItemDecorator;
@@ -28,6 +31,8 @@ public class RecipesActivity extends AppCompatActivity implements RecipesListene
     private RecyclerView rvRecipes;
     private RecipeViewModel recipesViewModel;
     private Toolbar toolbar;
+    // The Idling Resource which will be null in production.
+    private CountingIdlingResource mIdlingResource = new CountingIdlingResource("DATA_LOADER");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,14 +50,18 @@ public class RecipesActivity extends AppCompatActivity implements RecipesListene
         rvRecipes.setAdapter(adapter);
         rvRecipes.setLayoutManager(new GridLayoutManager(this, numberOfColumns(), LinearLayoutManager.VERTICAL, false));
         rvRecipes.addItemDecoration(new RecipesItemDecorator(numberOfColumns(), cardSpacing, true));
+        toolbar = binding.appBar;
+
+        mIdlingResource.increment();
+
         recipesViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())).get(RecipeViewModel.class);
         recipesViewModel.getRecipesObservable().observe(this, this::onRecipesRetrieved);
-        toolbar = binding.appBar;
         setSupportActionBar(toolbar);
     }
 
     private void onRecipesRetrieved(List<Recipe> recipes) {
         adapter.setData(recipes);
+        mIdlingResource.decrement();
     }
 
     private int numberOfColumns() {
@@ -71,5 +80,13 @@ public class RecipesActivity extends AppCompatActivity implements RecipesListene
         Intent recipeDetails = new Intent(this, RecipeDetailsActivity.class);
         recipeDetails.putExtra(RecipeDetailsActivity.RECIPE_DETAIL_KEY, recipe);
         startActivity(recipeDetails);
+    }
+
+    /**
+     * Only called from test, creates and returns a new {@link SimpleIdlingResource}.
+     */
+    @VisibleForTesting
+    public IdlingResource getIdlingResource() {
+        return mIdlingResource;
     }
 }

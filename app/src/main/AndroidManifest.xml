@@ -11,16 +11,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/BakingAppTheme">
-        <receiver android:name=".RecipeWidgetProvider">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/recipe_widget_provider_info" />
-        </receiver>
-
         <activity
             android:name=".RecipesActivity"
             android:launchMode="singleTop">
@@ -38,6 +28,20 @@
             android:name=".recipe.RecipeStepDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName=".recipe.RecipeDetailsActivity" />
+
+        <service
+            android:name=".RecipeWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <receiver android:name=".RecipeWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/recipe_widget_provider_info" />
+        </receiver>
     </application>
 
 </manifest>

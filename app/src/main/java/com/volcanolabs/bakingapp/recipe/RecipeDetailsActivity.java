@@ -1,16 +1,15 @@
 package com.volcanolabs.bakingapp.recipe;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.volcanolabs.bakingapp.R;
 import com.volcanolabs.bakingapp.databinding.ActivityRecipesDetailBinding;
 import com.volcanolabs.bakingapp.entities.Recipe;

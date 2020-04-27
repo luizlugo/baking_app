@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
-import com.volcanolabs.bakingapp.R;
 import com.volcanolabs.bakingapp.databinding.FragmentRecipeStepDetailsBinding;
 import com.volcanolabs.bakingapp.entities.Step;
 import com.volcanolabs.bakingapp.viewmodel.RecipeDetailViewModel;
@@ -38,6 +37,7 @@ public class RecipeStepDetailsFragment extends Fragment {
     private boolean mExoPlayerFullscreen;
     private ViewGroup vgMediaFrame;
     private boolean isTablet;
+    private TextView tvNoVideo;
 
     public static RecipeStepDetailsFragment newInstance(Step step) {
         Bundle args = new Bundle();
@@ -62,6 +62,7 @@ public class RecipeStepDetailsFragment extends Fragment {
         videoPlayer = binding.vgVideoplayer;
         vgMediaFrame = binding.vgMediaFrame;
         tvIngredients = binding.tvIngredients;
+        tvNoVideo = binding.tvNoVideo;
         initFullscreenDialog();
         return binding.getRoot();
     }
@@ -98,8 +99,10 @@ public class RecipeStepDetailsFragment extends Fragment {
                 String url = (!step.getVideoUrl().isEmpty()) ? step.getVideoUrl() : step.getThumbnailUrl();
                 setVideoToPlayer(url);
                 videoPlayer.setVisibility(View.VISIBLE);
+                tvNoVideo.setVisibility(View.GONE);
             } else {
                 videoPlayer.setVisibility(View.GONE);
+                tvNoVideo.setVisibility(View.VISIBLE);
             }
 
             tvIngredients.setText(step.getDescription());
@@ -157,7 +160,7 @@ public class RecipeStepDetailsFragment extends Fragment {
         if (!isTablet) {
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 openFullscreenDialog();
-            } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT && mExoPlayerFullscreen){
+            } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT && mExoPlayerFullscreen) {
                 closeFullscreenDialog();
             }
         }

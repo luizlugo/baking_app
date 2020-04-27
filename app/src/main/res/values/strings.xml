@@ -5,4 +5,7 @@
     <string name="instructions">Instructions</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="loading">Loading recipes…</string>
+    <string name="latest_recipes">10 Latest recipes</string>
+    <string name="no_video">No video available for this step</string>
 </resources>
